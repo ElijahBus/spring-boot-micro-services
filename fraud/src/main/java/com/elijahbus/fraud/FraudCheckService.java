@@ -8,13 +8,13 @@ import java.time.LocalDateTime;
 public record FraudCheckService(FraudCheckHistoryRepository fraudCheckHistoryRepository) {
 
     public boolean isFraudulentCustomer(Integer customerId) {
+        // Save history of the fraud check on the customer
         fraudCheckHistoryRepository.save(
                 FraudCheckHistory.builder()
                         .isFraudster(false)
                         .customerId(customerId)
                         .createdAt(LocalDateTime.now())
-                        .build()
-        );
+                        .build());
 
         return false;
     }
