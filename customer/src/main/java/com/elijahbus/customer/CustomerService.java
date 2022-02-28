@@ -1,11 +1,15 @@
 package com.elijahbus.customer;
 
+import com.elijahbus.clients.fraud.FraudCheckResponse;
+import com.elijahbus.clients.fraud.FraudClient;
+import feign.FeignException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
 public record CustomerService(RestTemplate restTemplate,
-                              CustomerRepository customerRepository) {
+                              CustomerRepository customerRepository,
+                              FraudClient fraudClient) {
 
     public void registerCustomer(CustomerRegistrationRequest customerRegistrationRequest) {
         Customer customer = Customer.builder()
@@ -17,11 +21,8 @@ public record CustomerService(RestTemplate restTemplate,
         customerRepository.saveAndFlush(customer);
 
         // Check if customer is fraudster
-        FraudCheckResponse fraudCheckResponse = restTemplate.getForObject(
-                "http://FRAUD/api/v1/fraud-check/{customerId}",
-                FraudCheckResponse.class,
-                customer.getId()
-        );
+        FraudCheckResponse fraudCheckResponse;
+        fraudCheckResponse = fraudClient.isFraudster(customer.getId());
 
         assert fraudCheckResponse != null;
         if (fraudCheckResponse.isFraudster()) {
