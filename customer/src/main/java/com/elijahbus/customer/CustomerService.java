@@ -2,14 +2,18 @@ package com.elijahbus.customer;
 
 import com.elijahbus.clients.fraud.FraudCheckResponse;
 import com.elijahbus.clients.fraud.FraudClient;
-import feign.FeignException;
+import com.elijahbus.clients.notification.NotificationClient;
+import com.elijahbus.clients.notification.NotificationRequest;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @Service
-public record CustomerService(RestTemplate restTemplate,
-                              CustomerRepository customerRepository,
-                              FraudClient fraudClient) {
+@AllArgsConstructor
+public class CustomerService {
+
+    private final FraudClient fraudClient;
+    private final NotificationClient notificationClient;
+    private final CustomerRepository customerRepository;
 
     public void registerCustomer(CustomerRegistrationRequest customerRegistrationRequest) {
         Customer customer = Customer.builder()
@@ -29,5 +33,17 @@ public record CustomerService(RestTemplate restTemplate,
             throw new IllegalStateException("You are a fraudster");
         }
 
+        // Send a notification to the customer
+        // TODO: make it async, i.e: Add to the queue
+        sendNotification(customer);
+
+    }
+
+    private void sendNotification(Customer customer) {
+        notificationClient.sendNotification(new NotificationRequest(
+                customer.getId(),
+                customer.getEmail(),
+                String.format("Hi, welcome %s to elijahbus services!", customer.getFirstName())
+        ));
     }
 }
