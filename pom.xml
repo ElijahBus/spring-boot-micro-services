@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.elijahbus</groupId>
-  <artifactId>learnspringbootmicroservices</artifactId>
+  <artifactId>sbmicro</artifactId>
   <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
   <modules>
@@ -14,9 +14,11 @@
     <module>eureka-server</module>
       <module>clients</module>
       <module>notification</module>
+      <module>api-gw</module>
+      <module>amqp</module>
   </modules>
 
-  <name>learnspringbootmicroservices</name>
+  <name>sbmicro</name>
   <!-- FIXME change it to the project's website -->
   <url>https://www.example.com</url>
 

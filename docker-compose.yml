@@ -29,9 +29,15 @@ services:
     restart: unless-stopped
   zipkin:
     image: openzipkin/zipkin
-    container_name: zipkin
+    container_name: zipkin2
     ports:
       - "9411:9411"
+  rabbitmq:
+    image: rabbitmq:3.9.11-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
 networks:
   postgres:

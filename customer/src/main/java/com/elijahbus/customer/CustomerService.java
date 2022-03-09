@@ -1,5 +1,6 @@
 package com.elijahbus.customer;
 
+import com.elijahbus.amqp.RabbitMQMessageProducer;
 import com.elijahbus.clients.fraud.FraudCheckResponse;
 import com.elijahbus.clients.fraud.FraudClient;
 import com.elijahbus.clients.notification.NotificationClient;
@@ -14,6 +15,7 @@ public class CustomerService {
     private final FraudClient fraudClient;
     private final NotificationClient notificationClient;
     private final CustomerRepository customerRepository;
+    private final RabbitMQMessageProducer rabbitMQMessageProducer;
 
     public void registerCustomer(CustomerRegistrationRequest customerRegistrationRequest) {
         Customer customer = Customer.builder()
@@ -40,10 +42,16 @@ public class CustomerService {
     }
 
     private void sendNotification(Customer customer) {
-        notificationClient.sendNotification(new NotificationRequest(
+        NotificationRequest notificationRequest = new NotificationRequest(
                 customer.getId(),
                 customer.getEmail(),
                 String.format("Hi, welcome %s to elijahbus services!", customer.getFirstName())
-        ));
+        );
+
+        rabbitMQMessageProducer.publish(
+                notificationRequest,
+                "internal.exchange",
+                "internal.notification.routing-key"
+        );
     }
 }
